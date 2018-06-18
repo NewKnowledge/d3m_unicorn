@@ -28,6 +28,7 @@ class Unicorn:
         self.model = InceptionV3(weights='imagenet', include_top=False)
         self.alpha_fill = '#ffffff'
         self.prep_func = preprocess_input
+        self.scale_features = True
         self.n_clusters = 4
 
     def load_image(self, img_path):
@@ -95,18 +96,17 @@ class Unicorn:
             else:
                 filename = image_path
 
-            print('processing image {}/{}'.format(i + 1, num_images))
+            if i % 10 == 0:
+                print('processing image {}/{}'.format(i + 1, num_images))
             X = np.array([self.load_image(filename)])
 
             if self.dupe_images:
 
                 # # # keras features
-                print('extracting image features')
                 image_features = self.featurize_image(X)
 
             else:
                 # # # fourier transform only
-                print('extracting image features')
                 image_features = fft(X.flatten())
 
             if filename == 'target_img.jpg':
@@ -128,10 +128,9 @@ class Unicorn:
 
         targets = feature_data[feature_data.columns.difference(['label'])]
 
-        # # # standardize features? eg for PCA
-        # feature_data_scl = StandardScaler().fit_transform(
-        #     feature_data[feature_data.columns.difference(['label'])]
-        # )
+        if self.scale_features:
+            # # # standardize features? eg for PCA
+            targets = StandardScaler().fit_transform(targets)
 
         # # # apply PCA feature matrix
         pca = PCA(n_components=3)
@@ -147,7 +146,7 @@ class Unicorn:
         model.fit(
             pca_feature_data
         )
-        
+
         feature_data['pred_class'] = pd.Series(model.labels_)
 
         return feature_data[['label', 'pred_class']]
@@ -157,7 +156,7 @@ if __name__ == '__main__':
     from keras.applications.inception_v3 import InceptionV3
     unicorn = Unicorn()
     # # # use fourier transform
-    unicorn.dupe_images = False
+    # unicorn.dupe_images = False
     # confirm URL points to a valid image when testing:
     sample_data = [(os.getcwd() + '/images/' + i) for i in os.listdir('images')]
     result = unicorn.cluster_images(sample_data)
