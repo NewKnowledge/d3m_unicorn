@@ -23,6 +23,7 @@ from keras.applications.inception_v3 \
 class Unicorn:
 
     def __init__(self):
+        from keras.applications.inception_v3 import InceptionV3
         self.dupe_images = True
         self.target_size = (299, 299)
         self.model = InceptionV3(weights='imagenet', include_top=False)
@@ -153,7 +154,6 @@ class Unicorn:
 
 
 if __name__ == '__main__':
-    from keras.applications.inception_v3 import InceptionV3
     unicorn = Unicorn()
     # # # use fourier transform
     # unicorn.dupe_images = False
