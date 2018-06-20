@@ -91,38 +91,41 @@ class Unicorn:
 
         for i, image_path in enumerate(image_paths):
 
-            if self.validate_url(image_path):
-                filename = 'target_img.jpg'
-                self.load_image_from_web(image_path)
-            else:
-                filename = image_path
+            try:
+                if self.validate_url(image_path):
+                    filename = 'target_img.jpg'
+                    self.load_image_from_web(image_path)
+                else:
+                    filename = image_path
 
-            if i % 10 == 0:
-                print('processing image {}/{}'.format(i + 1, num_images))
-            X = np.array([self.load_image(filename)])
+                if i % 10 == 0:
+                    print('processing image {}/{}'.format(i + 1, num_images))
+                X = np.array([self.load_image(filename)])
 
-            if self.dupe_images:
+                if self.dupe_images:
 
-                # # # keras features
-                image_features = self.featurize_image(X)
+                    # # # keras features
+                    image_features = self.featurize_image(X)
 
-            else:
-                # # # fourier transform only
-                image_features = fft(X.flatten())
+                else:
+                    # # # fourier transform only
+                    image_features = fft(X.flatten())
 
-            if filename == 'target_img.jpg':
-                os.remove('target_img.jpg')
+                if filename == 'target_img.jpg':
+                    os.remove('target_img.jpg')
 
-            # # # keras with fourier transform
-            # feature_data = feature_data.append(
-            #     pd.Series(fft(image_features.flatten())),
-            #     ignore_index=True)
+                # # # keras with fourier transform
+                # feature_data = feature_data.append(
+                #     pd.Series(fft(image_features.flatten())),
+                #     ignore_index=True)
 
-            # # keras/fft only
-            feature_data = feature_data.append(
-                pd.Series(image_features.flatten()),
-                ignore_index=True)
-
+                # # keras/fft only
+                feature_data = feature_data.append(
+                    pd.Series(image_features.flatten()),
+                    ignore_index=True)
+            except Exception as e:
+                print(e)
+                
         feature_data['label'] = pd.Series(
             [i.split('/')[-1] for i in image_paths]
         )
