@@ -81,7 +81,7 @@ class Unicorn:
     def strip_alpha_channel(self, image):
         ''' Strip the alpha channel of an image and fill with fill color
         '''
-        background = Image.new(image.mode[:-1], image.size, self.fill_color)
+        background = Image.new(image.mode[:-1], image.size, self.alpha_fill)
         background.paste(image, image.split()[-1])
         return background
 
