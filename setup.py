@@ -11,7 +11,7 @@ setup(name='nk_unicorn',
           'numpy >= 1.13.3',
           'pandas >= 0.22.0, <= 0.23.0',
           'Pillow >= 5.1.0',
-          'PyWavelets==0.5.2'
+          'PyWavelets==0.5.2',
           'scipy==1.1.0',
           'scikit-learn==0.19.1'],
       )
