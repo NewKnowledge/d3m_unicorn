@@ -8,7 +8,10 @@ setup(name='nk_unicorn',
       install_requires=[
           'tensorflow == 1.8.0',
           'Keras == 2.1.6',
-          'pandas >= 0.22.0, <= 0.23.0',
           'numpy >= 1.13.3',
-          'Pillow >= 5.1.0'],
+          'pandas >= 0.22.0, <= 0.23.0',
+          'Pillow >= 5.1.0',
+          'PyWavelets==0.5.2'
+          'scipy==1.1.0',
+          'scikit-learn==0.19.1'],
       )
