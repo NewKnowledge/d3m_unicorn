@@ -14,9 +14,9 @@ Start UNICORN as a service on your local-machine with:
 
 ## Structure of this repo
 
-The core of this repo is `setup.py` and `nk_unicorn`. 
+The core of this repo is `setup.py` and `d3m_unicorn`. 
 
-This repo is pip-installsable and makes the contents of `nk_unicorn` available after installation.
+This repo is pip-installsable and makes the contents of `d3m_unicorn` available after installation.
 
 There is a flask wrapper for the library located in `http-wrapper`. It uses `nk_unicorn` and can be built with the `http.dockerfile`. For more information see [the README.md in `http-wrapper`](./http-wrapper/README.md)
 
