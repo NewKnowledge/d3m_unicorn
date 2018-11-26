@@ -1,4 +1,4 @@
-from nk_unicorn.nk_unicorn import Unicorn
+from d3m_unicorn.d3m_unicorn import Unicorn
 
 __version__ = '1.0.0'
 
