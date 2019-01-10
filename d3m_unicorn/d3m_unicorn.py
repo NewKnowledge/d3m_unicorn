@@ -132,12 +132,12 @@ class Unicorn:
 
         return feature_data
 
-    def get_net_features(self, image_paths):
+    def get_net_features(self, image_paths, weights_path):
         ''' Returns features of images (defaults to inception V3:imagenet wts)
             from paths provided as a list
         '''
         from keras.applications.inception_v3 import InceptionV3
-        self.model = InceptionV3(weights='imagenet', include_top=False)
+        self.model = InceptionV3(weights=weights_path)
         num_images = len(image_paths)
         feature_data = pd.DataFrame()
 
