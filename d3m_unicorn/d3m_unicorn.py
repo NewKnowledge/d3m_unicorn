@@ -21,9 +21,9 @@ from keras.applications.inception_v3 \
     import decode_predictions, preprocess_input
 
 
-class Unicorn:
+class Unicorn():
 
-    def __init__(self):
+    def __init__(self, weights_path):
         self.cnn_features = True
         self.target_size = (299, 299)
         self.alpha_fill = '#ffffff'
@@ -31,6 +31,7 @@ class Unicorn:
         self.scale_features = True
         self.n_clusters = 4
         self.n_pca_comps = 10
+        self.model = InceptionV3(weights=weights_path)
 
     def load_image(self, img_path):
         ''' load image given path and convert to an array
@@ -136,7 +137,7 @@ class Unicorn:
         ''' Returns features of images (defaults to inception V3:imagenet wts)
             from paths provided as a list
         '''
-        from keras.applications.inception_v3 import InceptionV3
+        # from keras.applications.inception_v3 import InceptionV3
         self.model = InceptionV3(weights='imagenet', include_top=False)
         num_images = len(image_paths)
         feature_data = pd.DataFrame()
