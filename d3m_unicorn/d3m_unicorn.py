@@ -139,7 +139,7 @@ class Unicorn():
             from paths provided as a list
         '''
         # from keras.applications.inception_v3 import InceptionV3
-        self.model = InceptionV3(weights='imagenet', include_top=False)
+        # self.model = InceptionV3(weights='imagenet', include_top=False)
         num_images = len(image_paths)
         feature_data = pd.DataFrame()
 
