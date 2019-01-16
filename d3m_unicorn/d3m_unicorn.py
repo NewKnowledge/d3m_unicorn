@@ -19,6 +19,7 @@ from sklearn.decomposition import PCA
 from keras.preprocessing import image
 from keras.applications.inception_v3 \
     import decode_predictions, preprocess_input
+from keras.applications.inception_v3 import InceptionV3
 
 
 class Unicorn():
