@@ -8,7 +8,7 @@ setup(name='d3m_unicorn',
       install_requires=[
           'tensorflow == 1.8.0',
           'Keras == 2.1.6',
-          'numpy >= 1.13.3',
+          'numpy >= 1.15.4',
           'pandas == 0.23.4',
           'Pillow >= 5.1.0',
           'PyWavelets==0.5.2',
