@@ -6,7 +6,7 @@ setup(name='d3m_unicorn',
       description='UNsupervised Image Clustering with Object Recognition Network system',
       packages=['d3m_unicorn'],
       install_requires=[
-          'tensorflow <= 1.12.0, >= 1.8.0',
+          'tensorflow-gpu <= 1.12.0',
           'Keras <= 2.2.4, >=2.1.6',
           'numpy >= 1.15.4',
           'pandas == 0.23.4',
