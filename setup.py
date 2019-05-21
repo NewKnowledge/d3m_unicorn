@@ -13,5 +13,5 @@ setup(name='d3m_unicorn',
           'Pillow >= 5.1.0',
           'PyWavelets==0.5.2',
           'scipy==1.1.0',
-          'scikit-learn==0.20.2'],
+          'scikit-learn==0.20.3'],
       )
