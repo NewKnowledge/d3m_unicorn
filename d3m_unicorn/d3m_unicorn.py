@@ -17,14 +17,16 @@ from sklearn.decomposition import PCA
 # import sklearn.metrics as sm
 
 from keras.preprocessing import image
-from keras.applications.inception_v3 \
-    import decode_predictions, preprocess_input
+from keras.applications.inception_v3 import decode_predictions, preprocess_input
 from keras.applications.inception_v3 import InceptionV3
+from keras.models import Model
+from keras.layers import Dense, GlobalAveragePooling2D
+from keras.optimizers import SGD
 
 
 class Unicorn():
 
-    def __init__(self, weights_path):
+    def __init__(self, weights_path = None, include_top = True):
         self.cnn_features = True
         self.target_size = (299, 299)
         self.alpha_fill = '#ffffff'
@@ -32,7 +34,7 @@ class Unicorn():
         self.scale_features = True
         self.n_clusters = 4
         self.n_pca_comps = 10
-        self.model = InceptionV3(weights=weights_path)
+        self.model = InceptionV3(weights=weights_path, include_top = include_top)
 
     def load_image(self, img_path):
         ''' load image given path and convert to an array
@@ -71,9 +73,20 @@ class Unicorn():
 
         return bool(url_validator.match(url))
 
-    def finetune_model(self, image_paths, labels, batch_size = 32, epochs = 1, class_weight = None):
+    def finetune(self, 
+                image_paths, 
+                labels, 
+                nclasses = 2,
+                batch_size = 32, 
+                last_layer_epochs = 100,
+                last_block_epochs = 10, 
+                class_weight = None,
+                optimizer = 'rmsprop'
+        ):
         ''' Finetunes the InceptionV3 weights on a set of imagepaths
         '''
+        
+        # prepare training data
         model_inputs = []
         for i, image_path in enumerate(image_paths):
             try:
@@ -86,19 +99,67 @@ class Unicorn():
                 if i % 10 == 0:
                     print('processing image {}/{}'.format(i + 1, len(image_paths)))
                 model_inputs.append(self.load_image(filename))
-        model_inputs = np.array(model_inputs)
 
-        # finetune classifier 
-        self.model.fit(np.array(model_inputs), 
+        # add a global spatial average pooling layer
+        out = self.model.output
+        pooled = GlobalAveragePooling2D()(out)
+        dense = Dense(1024, activation='relu')(pooled)
+        preds = Dense(nclasses, activation='softmax')(dense)
+
+        # freeze all convolutional InceptionV3 layers, retrain top layer
+        self.finetune_model = Model(inputs = self.model.input, outputs = preds)
+        for layer in self.finetune_model.layers:
+            layer.trainable = False
+        self.finetune_model.compile(optimizer=optimizer, loss='categorical_crossentropy')
+        self.finetune_model.fit(np.array(model_inputs), 
             np.array(labels), 
             batch_size = batch_size,
-            epochs = epochs,
+            epochs = last_layer_epochs,
             class_weight = class_weight)
+
+        # retrain last two inception blocks
+        for layer in self.finetune_model.layers[:249]:
+            layer.trainable = False
+        for layer in self.finetune_model.layers[249:]:
+            layer.trainable = True
+
+        # use SGD and low learning rate to prevent catastrophic forgetting in these blocks
+        self.finetune_model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy')
+        self.finetune_model.fit(np.array(model_inputs), 
+            np.array(labels), 
+            batch_size = batch_size,
+            epochs = last_block_epochs,
+            class_weight = class_weight)
+    
+    def finetuned_predict(self, 
+                        image_paths, 
+                        batch_size = 32, 
+        ):
+        ''' Uses the finetuned InceptionV3 weights to predict on a set of imagepaths.
+            Returns array of softmax prediction probabilities 
+        '''    
+
+        # prepare prediction data
+        model_inputs = []
+        for i, image_path in enumerate(image_paths):
+            try:
+                if self.validate_url(image_path):
+                    filename = 'target_img.jpg'
+                    self.load_image_from_web(image_path)
+                else:
+                    filename = image_path
+
+                if i % 10 == 0:
+                    print('processing image {}/{}'.format(i + 1, len(image_paths)))
+                model_inputs.append(self.load_image(filename))
+
+        return self.finetune_model.predict(np.array(image_paths), batch_size=batch_size)
+
 
     def featurize_image(self, image_array):
         ''' Returns binary array with ones where the model predicts that
             the image contains an instance of one of the target classes
-            (specified by wordnet id)
+            (specified by wordnet id) if imagenet weights are loaded.
         '''
         predictions = self.model.predict(image_array)
 
