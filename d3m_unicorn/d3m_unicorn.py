@@ -71,6 +71,30 @@ class Unicorn():
 
         return bool(url_validator.match(url))
 
+    def finetune_model(self, image_paths, labels, batch_size = 32, epochs = 1, class_weight = None):
+        ''' Finetunes the InceptionV3 weights on a set of imagepaths
+        '''
+        model_inputs = []
+        for i, image_path in enumerate(image_paths):
+            try:
+                if self.validate_url(image_path):
+                    filename = 'target_img.jpg'
+                    self.load_image_from_web(image_path)
+                else:
+                    filename = image_path
+
+                if i % 10 == 0:
+                    print('processing image {}/{}'.format(i + 1, len(image_paths)))
+                model_inputs.append(self.load_image(filename))
+        model_inputs = np.array(model_inputs)
+
+        # finetune classifier 
+        self.model.fit(np.array(model_inputs), 
+            np.array(labels), 
+            batch_size = batch_size,
+            epochs = epochs,
+            class_weight = class_weight)
+
     def featurize_image(self, image_array):
         ''' Returns binary array with ones where the model predicts that
             the image contains an instance of one of the target classes
